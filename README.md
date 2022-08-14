@@ -68,7 +68,7 @@ The list of currently supported devices are:
 
 ### Step 5: Wait about 10 seconds for the message at the bottom of the Cypress COntrol Center to say the the programming was successful
 
-TODO: Add image
+![](img/ProjectBuiltSuccesfully.png)
 
 ### Step 6: Place the jumpers back to configure the DAQ to "Boot from EEPROM", power cycle the DAQ, and check to make sure it shows up in Window;s Device Manager as a "MINISCOPE" under cameras or Imaging Devices.
 
