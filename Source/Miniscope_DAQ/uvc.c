@@ -759,6 +759,10 @@ CyFxUvcApplnDmaCallback (
         	currentTime = CyU3PGetTime();
 
         	// Handle EWL plane jumping
+        	handleLEDDisable();
+        	handleLEDEnable();
+        	handleLEDtoggle();
+
         	handleEWLPlaneJumping();
 
         	// Send I2C packets

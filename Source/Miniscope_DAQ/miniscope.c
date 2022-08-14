@@ -33,7 +33,11 @@ uint8_t quatBNO[8] = {0,0,0,0,0,0,0,0};
 
 uint8_t ewlPlaneNumber = 0;
 uint8_t ewlNumPlanes = 0;
-uint8_t ewlPlaneValue[3] = {0,0,0};
+uint8_t ewlPlaneValue[2] = {0,0};
+uint8_t LEDNum = 0;
+
+
+//--- LED toggle constants
 
 // EWL Plane jumping function
 // Receives the planes information from the deviceConfig file
@@ -48,7 +52,7 @@ void handleEWLPlaneJumping(void) {
 
 		ewlPlaneNumber = (ewlPlaneNumber + 1) % ewlNumPlanes;
 
-		preamble.buffer[0] = 0b11101110; // I2C Address
+		preamble.buffer[0] = EWL_ADDR; // I2C Address
 		preamble.buffer[1] = 0x08; // usual reg byte
 		preamble.length    = 2; //register length + 1 (for address)
 		preamble.ctrlMask  = 0x0000;
@@ -68,6 +72,88 @@ void handleEWLPlaneJumping(void) {
 uint8_t getNumPlanes(void) {
 	return ewlNumPlanes;
 }
+
+// LED toggle
+
+void handleLEDDisable(void) {
+
+	if (ewlNumPlanes > 0) {
+
+		CyU3PReturnStatus_t apiRetStatus = CY_U3P_SUCCESS;
+		CyU3PI2cPreamble_t preamble;
+		uint8_t dataBuff[1];
+
+		LEDNum ^= 1;
+
+		preamble.buffer[0] = MCU_ADDR; // I2C Address
+		preamble.buffer[1] = 0x02; // usual reg byte
+		preamble.length    = 2; //register length + 1 (for address)
+		preamble.ctrlMask  = 0x0000;
+
+		dataBuff[0] = 0xF0;
+
+		apiRetStatus = CyU3PI2cTransmitBytes (&preamble, dataBuff, 1, 0);
+		if (apiRetStatus == CY_U3P_SUCCESS)
+			CyU3PBusyWait (100);
+		else
+			CyU3PDebugPrint (2, "I2C DAC WRITE command failed\r\n");
+
+	}
+}
+
+void handleLEDEnable(void) {
+
+	if (ewlNumPlanes > 0) {
+
+		CyU3PReturnStatus_t apiRetStatus = CY_U3P_SUCCESS;
+		CyU3PI2cPreamble_t preamble;
+		uint8_t dataBuff[1];
+
+		LEDNum ^= 1;
+
+		preamble.buffer[0] = MCU_ADDR; // I2C Address
+		preamble.buffer[1] = 0x01; // usual reg byte
+		preamble.length    = 2; //register length + 1 (for address)
+		preamble.ctrlMask  = 0x0000;
+
+		dataBuff[0] = 1;
+
+		apiRetStatus = CyU3PI2cTransmitBytes (&preamble, dataBuff, 1, 0);
+		if (apiRetStatus == CY_U3P_SUCCESS)
+			CyU3PBusyWait (100);
+		else
+			CyU3PDebugPrint (2, "I2C DAC WRITE command failed\r\n");
+
+	}
+}
+
+void handleLEDtoggle(void) {
+
+	if (ewlNumPlanes > 0) {
+
+		CyU3PReturnStatus_t apiRetStatus = CY_U3P_SUCCESS;
+		CyU3PI2cPreamble_t preamble;
+		uint8_t dataBuff[1];
+
+		LEDNum ^= 1;
+
+		preamble.buffer[0] = DigitalPot_ADDR; // I2C Address
+		preamble.buffer[1] = 0x00; // usual reg byte
+		preamble.length    = 1; //register length + 1 (for address)
+		preamble.ctrlMask  = 0x0000;
+
+		dataBuff[0] = ewlPlaneValue[ewlPlaneNumber];
+
+
+		apiRetStatus = CyU3PI2cTransmitBytes (&preamble, dataBuff, 1, 0);
+		if (apiRetStatus == CY_U3P_SUCCESS)
+			CyU3PBusyWait (100);
+		else
+			CyU3PDebugPrint (2, "I2C DAC WRITE command failed\r\n");
+
+	}
+}
+
 
 /**
  *  Initializes our I2C packet ringbuffer using a preallocated structure.
@@ -136,13 +222,12 @@ void I2CProcessAndSendPendingPacket (I2CPacketQueue *pq)
 				handleDAQConfigCommand(pq->buffer[pq->idxRD][2]);
 			}
 			else if (pq->buffer[pq->idxRD][1] > 2 && pq->buffer[pq->idxRD][2] == 0x01){
-				// Used for ewl focal plane jumping settings
+				// Used for EWL focal plane jumping settings
 				ewlPlaneNumber = 0;
 				ewlNumPlanes = pq->buffer[pq->idxRD][1] - 2;
 				for (uint8_t i = 0; i < ewlNumPlanes; i++) {
 					ewlPlaneValue[i] = pq->buffer[pq->idxRD][3 + i];
 				}
-
 			}
 		} else {
 			if (pq->buffer[pq->idxRD][0] & 0x01) {

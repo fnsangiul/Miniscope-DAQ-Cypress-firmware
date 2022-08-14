@@ -13,6 +13,9 @@
 
 // ------- Globals ---------------------
 #define BNO055_ADDR            0b01010000
+#define MCU_ADDR			   0x20
+#define DigitalPot_ADDR		   0b01011000
+#define EWL_ADDR			   0b11101110
 #define I2C_PACKET_BUFFER_SIZE 64
 
 /**
@@ -69,12 +72,21 @@ extern uint32_t currentTime;
 // For EWL focal plane jumping
 extern uint8_t ewlPlaneNumber;
 extern uint8_t ewlNumPlanes;
-extern uint8_t ewlPlaneValue[3];
+extern uint8_t ewlPlaneValue[2];
+
+// For LED toggling
+
+extern uint8_t LEDEnables[2];
+extern uint8_t LEDValues[2];
+extern uint8_t LEDNum;
 
 // Handles the processing and sending of generic I2C packets that have built up since previous End of Frame event
 extern void I2CProcessAndSendPendingPacket (I2CPacketQueue *pq);
 extern void handleDAQConfigCommand (uint8_t);
 extern void handleEWLPlaneJumping(void);
+extern void handleLEDtoggle(void);
+extern void handleLEDEnable(void);
+extern void handleLEDDisable(void);
 extern uint8_t getNumPlanes(void);
 
 extern CyU3PReturnStatus_t readBNO(void);
