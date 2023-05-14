@@ -13,10 +13,18 @@
 
 // ------- Globals ---------------------
 #define BNO055_ADDR            0b01010000
-#define MCU_ADDR			   0x20
+#define MCU_ADDR			   0b00100000
 #define DigitalPot_ADDR		   0b01011000
 #define EWL_ADDR			   0b11101110
 #define I2C_PACKET_BUFFER_SIZE 64
+
+// ------ 2 color switching constants
+
+#define LED0_MCU_ENABLE 0x01
+#define LED0_DP_ENABLE 0x00
+
+#define LED1_MCU_ENABLE 0x02
+#define LED1_DP_ENABLE 0x01
 
 /**
  * A packet is assembled from bytes coming via various UVC camera controls
@@ -47,6 +55,19 @@ typedef struct
     CyU3PMutex lock;
 } I2CPacketQueue;
 
+/**
+ * Structure to make the plane selection more clear
+ * Each plane has an EWL plane value,LED selection and brightness value
+ */
+/*
+typedef struct
+{
+	uint8_t EWL_value;
+	uint8_t LED_value;
+	uint8_t LED_enable;
+
+} planeSelect;
+*/
 extern int i2c_packet_queue_init (I2CPacketQueue *pq);
 extern void i2c_packet_queue_free (I2CPacketQueue *pq);
 
@@ -69,6 +90,11 @@ extern uint32_t dFrameNumber;
 extern uint32_t currentTime;
 //----------------------------------
 
+extern uint8_t PlaneValue[4];
+
+extern uint8_t MCUEnable[2];
+extern uint8_t DPEnable[2];
+
 // For EWL focal plane jumping
 extern uint8_t ewlPlaneNumber;
 extern uint8_t ewlNumPlanes;
@@ -79,6 +105,9 @@ extern uint8_t ewlPlaneValue[2];
 extern uint8_t LEDEnables[2];
 extern uint8_t LEDValues[2];
 extern uint8_t LEDNum;
+extern uint8_t LEDNumPlanes;
+extern uint8_t CurrentPlane;
+extern uint8_t PreviousPlane;
 
 // Handles the processing and sending of generic I2C packets that have built up since previous End of Frame event
 extern void I2CProcessAndSendPendingPacket (I2CPacketQueue *pq);

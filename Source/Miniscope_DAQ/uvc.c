@@ -760,10 +760,14 @@ CyFxUvcApplnDmaCallback (
 
         	// Handle EWL plane jumping
         	handleLEDDisable();
-        	handleLEDEnable();
         	handleLEDtoggle();
 
         	handleEWLPlaneJumping();
+
+        	handleLEDEnable();
+
+
+        	//handleEWLPlaneJumping();
 
         	// Send I2C packets
         	I2CProcessAndSendPendingPacket(&i2cPQueue);
